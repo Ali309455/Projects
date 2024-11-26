@@ -254,7 +254,7 @@ const manager = () => {
                     </td>
                     <td className="p-2 text-gray-600  border-pink-400 border-b-2 max-md:text-[0.6rem] text-[clamp(0.6rem,0.495rem_+_0.525vw,1.125rem)] max-sm:flex-col">
                       <div className="flex items-center justify-between max-sm:flex-col">
-                        {item.password.replaceAll("a/`z","*")}
+                        {"*******"}
                         <span
                           className="cursor-pointer"
                           onClick={() => copy(item.password)}

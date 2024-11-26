@@ -40,7 +40,7 @@ const authOptions = NextAuth({
       
   ], callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      //  if(account.provider == "github") { 
+       if(account.provider == "github") { 
         await connectDB()
         // Check if the user already exists in the database
         const currentUser =  await User.findOne({email: email}) 
@@ -51,7 +51,7 @@ const authOptions = NextAuth({
             username: user.email.split("@")[0], 
             uniquename: user.email.split("@")[0]
           })   
-        // } 
+        } 
         return true
        }
     },
