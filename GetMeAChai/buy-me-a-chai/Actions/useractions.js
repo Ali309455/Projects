@@ -2,6 +2,7 @@
 import connectDB from "@/app/db/connectDB";
 import User from "@/app/models/User";
 import Payment from "@/app/models/Payment";
+import { createRef } from "react";
 const db = connectDB();
 
 
@@ -23,7 +24,12 @@ export const fetchpaymentdata = async (to_user) => {
     if (!datas) {
       return null; // or handle the case when user is not found
     }
-    return datas.map((data) => ({
+    let filteredDatas = datas.filter((data) => data.to_user === to_user).sort((a, b) => b.amount - a.amount)
+    
+    console.log('filteredDatas', filteredDatas);
+    filteredDatas = filteredDatas.slice(0, 4);
+    
+    return filteredDatas.map((data) => ({
       _id: data._id.toString(),
       name: data.name,
       email: data.email,
@@ -56,6 +62,7 @@ export const fetchuserdata = async (email) => {
       email: details.email,
       createdAt: details.createdAt,
       updatedAt: details.updatedAt,
+      creator: details.creator,
       coverpic: details.coverpic,
       uniquename: details.uniquename,
       profilepic: details.profilepic,

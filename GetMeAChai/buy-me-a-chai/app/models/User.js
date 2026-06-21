@@ -10,6 +10,7 @@ const UserSchema = new Schema({
   coverpic: { type: String },
   razorpayid: { type: String },
   razorpaysecret: { type: String },
+  creator:{type: Boolean, default: false},
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

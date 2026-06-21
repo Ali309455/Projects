@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React from "react";
 import { useState, useEffect } from "react";
 import { updateformdata, fetchuserdata } from "@/Actions/useractions";
@@ -10,19 +10,27 @@ import { Bounce } from "react-toastify";
 
 const Dashboard = () => {
   const { data: session } = useSession();
-  const [form, setForm] = useState({username:"",razorpayid:"",razorpaysecret:""});
+  const [form, setForm] = useState({
+    username: "",
+    razorpayid: "",
+    razorpaysecret: "",
+    creator:false,
+  });
   const router = useRouter();
 
   useEffect(() => {
     if (session) {
       const fetchUserData = async () => {
         const u = await fetchuserdata(session.user.email);
+        
         setForm(u); // Pre-fill the form if needed
+        
       };
       fetchUserData();
-    }
-    else{
-      router.push("/Login")
+      console.log('form', form);
+      
+    } else {
+      router.push("/Login");
     }
   }, [session]);
 
@@ -45,7 +53,6 @@ const Dashboard = () => {
       });
     } else {
       updateformdata(form, session.user.name, session.user.email);
-      console.log('form', form)
       toast.success("Profile Updated!", {
         position: "bottom-right",
         autoClose: 5000,
@@ -62,7 +69,10 @@ const Dashboard = () => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+  const handlecheckbox = (e) =>{
+    console.log(!e.target.value)
+    setForm({ ...form, [e.target.name]: !e.target.value });
+  }
   return (
     <>
       <ToastContainer
@@ -205,6 +215,29 @@ const Dashboard = () => {
               className="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             />
           </div>
+          <div className="my-4 p-4 bg-gray-100 rounded-lg shadow-md dark:bg-gray-800">
+            <div className="flex justify-between items-center">
+              <label
+                htmlFor="creator"
+                className="text-sm font-semibold text-gray-700 dark:text-gray-200"
+              >
+                Are you the Creator?
+              </label>
+              <div className="flex items-center space-x-3">
+                <input
+                  value={form.creator}
+                  onChange={handlecheckbox}
+                  type="checkbox"
+                  name="creator"
+                  id="creator"
+                  className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:border-gray-600"
+                />
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  Check if yes
+                </span>
+              </div>
+            </div>
+          </div>
 
           {/* Submit Button  */}
           <div className="my-6">
@@ -228,6 +261,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-
-

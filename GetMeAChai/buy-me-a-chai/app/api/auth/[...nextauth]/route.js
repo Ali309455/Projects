@@ -43,7 +43,9 @@ const authOptions = NextAuth({
        if(account.provider == "github") { 
         await connectDB()
         // Check if the user already exists in the database
-        const currentUser =  await User.findOne({email: email}) 
+        
+        const currentUser =  await User.findOne({email: user.email}) 
+        console.log(currentUser)
         if(!currentUser){
           // Create a new user
            const newUser = await User.create({

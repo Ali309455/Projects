@@ -4,22 +4,36 @@ import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaLock } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
+import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
+import useIsAuthenticated from 'react-auth-kit/hooks/useIsAuthenticated'
 
 const manager = () => {
+  const auth = useAuthUser()
+  const isAuthenticated = useIsAuthenticated()
   const Ref = useRef();
   const passRef = useRef();
   const [form, setform] = useState({ url: "", username: "", password: "" });
-  const [details, setdetails] = useState([]);
+  const [details, setdetails] = useState({email:"",password:"", data:[] });
+  // const [details, setdetails] = useState({email:"",password:"", data:[{ id: "", url: "", username: "", password: "" }] });
   
-  const getpasswords = async () => {
-    let response = await fetch("http://localhost:3000/");
+  const getpasswords = async (email) => {
+    // let response = await fetch(`http://localhost:3000/${localStorage.getItem("email")}`);
+    let response = await fetch(`http://localhost:3000/?email=${email}`);
     let a = await response.json();
     setdetails(a);
   };
 
   useEffect(() => {
-    getpasswords()
+    let authentication = localStorage.getItem("email");
+    if(authentication) {
+      getpasswords(authentication);
+    }
+    else{
+      window.location.href = "/login";
+    }
   }, []);
+  
+  
 
   const showpassword = () => {
     if (Ref.current.src.includes("eye.png")) {
@@ -32,11 +46,13 @@ const manager = () => {
   };
   const handlechange = (e) => {
     setform({ ...form, [e.target.name]: e.target.value });
+    
   };
 
   const savepassword = async () => {
-    setdetails([...details, { ...form, id: uuidv4() }]);
-    let info = JSON.stringify( { ...form, id: uuidv4() });
+    const updateddata = [...details.data, { ...form, id: uuidv4() }];
+    setdetails((prevdetails) => ({ ...prevdetails, data: updateddata}));
+    let info = JSON.stringify( { email: details.email, data: updateddata });
     let response = await fetch("http://localhost:3000/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -56,7 +72,6 @@ const manager = () => {
       transition: Bounce,
       });
       setform({ url: "", username: "", password: "" });
-    console.log("details", details);
   };
   
   const copypassword = (text) => {
@@ -78,11 +93,13 @@ const manager = () => {
   const deletepassword = async (id) => {
     let c = confirm("Are you sure to delete this password?");
     if (c) {
-      setdetails(details.filter((item) => item.id !== id));
+      let newdataarray = Array.isArray(details.data) ? details.data.filter((item) => item.id !== id) : [];
+      setdetails((prevdetails) => ({ ...prevdetails, data: newdataarray}));
+      let info =  JSON.stringify({ email: details.email, data: newdataarray })
     let response = await fetch("http://localhost:3000/", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify( { id })
+      body:info
     })
     let a = await response.json();
       toast('Details Deleted!', {
@@ -101,14 +118,16 @@ const manager = () => {
   };
   
   const editpassword = async (id) => {
-    setform(details.filter((i) => i.id === id)[0]);
+    let editdata = details.data.filter((i) => i.id === id)[0];
+    setform(editdata);  
+    const updateddata = details.data.filter((item) => item.id !== id);
+    setdetails((prevdetails) => ({ ...prevdetails, data: updateddata }));
     let response = await fetch("http://localhost:3000/", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify( { id })
+      body: JSON.stringify( { email: details.email, data: updateddata })
     })
     let a = await response.json();
-    setdetails(details.filter((item) => item.id !== id));
 
   };
 
@@ -221,11 +240,11 @@ const manager = () => {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {details.length === 0 && (
+            {details.data.length === 0 && (
               <div className="">Your password will be shown here </div>
             )}
-            {details.length > 0 &&
-              details.map((item, index) => {
+            {details.data.length > 0 &&
+              details.data.map((item, index) => {
                 return (
                   <tr key={index} className="border border-pink-700">
                     <td className="p-2 text-gray-600  border-pink-400 border-b-2 text-center max-md:text-[0.6rem] text-[clamp(0.6rem,0.495rem_+_0.525vw,1.125rem)]">
